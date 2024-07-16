@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Restaurant Menu System</title>
+  <!-- Bootstrap CSS -->
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+  
+  <style>
+    /* Add custom styles here */
+    .card {
+      transition: transform 0.3s ease;
+    }
+
+    .card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    .card-img-top {
+      max-height: 200px;
+      object-fit: cover;
+    }
+
+    .devare-btn {
+      margin-left: 10px;
+    }
+  </style>
+</head>
+
+<body>
+  <header>
+    <nav class="navbar navbar-expand-md navbar-dark bg-dark">
+      <a class="navbar-brand" href="#">Restaurant Menu</a>
+      <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav"
+        aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navbarNav">
+        <ul class="navbar-nav">
+          <!-- Navigation links for different menu categories -->
+          <li class="nav-item">
+            <a class="nav-link" href="#" onclick="showMenu('appetizers')">Appetizers</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="#" onclick="showMenu('mains')">Mains</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="#" onclick="showMenu('desserts')">Desserts</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="#" onclick="showMenu('indian')">Indian</a>
+          </li>
+        </ul>
+      </div>
+    </nav>
+  </header>
+
+  <main class="container mt-4">
+    <div id="menuItems" class="row">
+      <!-- Menu items will be dynamically generated here -->
+    </div>
+
+    <div id="myChoice" class="mt-4">
+      <h2>My Choice</h2>
+      <ul id="myChoiceList">
+        <!-- Selected items will be displayed here -->
+      </ul>
+      <p>Total: <span id="totalPrice">₹0.00</span></p>
+      <button class="btn btn-primary" onclick="compvareOrder()">Complete Order</button>
+    </div>
+
+    <div id="orderDetails" class="mt-4" style="display: none;">
+      <h2>Billing Information</h2>
+      <table class="table">
+        <thead>
+          <tr>
+            <th>Item</th>
+            <th>Quantity</th>
+            <th>Price</th>
+            <th>Total</th>
+          </tr>
+        </thead>
+        <tbody id="orderSummary">
+          <!-- Order summary will be dynamically generated here -->
+        </tbody>
+        <tfoot>
+          <tr>
+            <td colspan="3" class="text-right"><strong>Total to Pay:</strong></td>
+            <td><span id="totalToPay">₹0.00</span></td>
+          </tr>
+        </tfoot>
+      </table>
+      <button class="btn btn-success" onclick="startNewOrder()">Start New Order</button>
+    </div>
+  </main>
+
+  <!-- Bootstrap JS and jQuery -->
+  <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
+  <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
+  <!-- Custom JavaScript -->
+  <script>
+    // Menu items data
+    var menuItems = [
+      { id: 1, name: 'Paneer Tikka', category: 'appetizers', price: 180, image: 'https://media-cdn2.greatbritishchefs.com/media/i0fckzol/img16448.whqc_768x512q80fpt489fpl526.jpg' },
+      { id: 2, name: 'Butter Chicken', category: 'mains', price: 300, image: 'https://www.spiceroots.com/spiceroots/wp-content/uploads/2008/05/butterchicken-1024x682.jpg' },
+      { id: 3, name: 'Gulab Jamun', category: 'desserts', price: 150, image: 'https://aartimadan.com/wp-content/uploads/2020/11/milk-powder-gulab-jamuns.jpg' },
+      { id: 4, name: 'Aloo Paratha', category: 'indian', price: 120, image: 'https://upload.wikimedia.org/wikipedia/commons/thumb/5/54/Aloo_Paratha_also_known_as_Batatay_Jo_Phulko.jpg/640px-Aloo_Paratha_also_known_as_Batatay_Jo_Phulko.jpg' },
+      { id: 5, name: 'Masala Dosa', category: 'indian', price: 180, image: 'https://i.pinimg.com/originals/e8/dc/7f/e8dc7f0b59b8602ba30621dee3c6291c.jpg' },
+      { id: 6, name: 'Samosa', category: 'appetizers', price: 100, image: 'https://myfoodstory.com/wp-content/uploads/2021/08/Punjabi-Samosa-4.jpg' },
+      { id: 7, name: 'Chicken Biryani', category: 'mains', price: 250, image: 'https://www.licious.in/blog/wp-content/uploads/2023/01/Shutterstock_2047827035-1024x683.jpg' },
+      { id: 8, name: 'Rasmalai', category: 'desserts', price: 200, image: 'https://www.kashmironlinestore.com/cdn/shop/articles/Untitled_design_54_1024x.jpg?v=1692702218' },
+      { id: 9, name: 'Chole Bhature', category: 'indian', price: 150, image: 'https://static.toiimg.com/photo/98230357.cms' },
+      { id: 10, name: 'Palak Paneer', category: 'indian', price: 220, image: 'https://beextravegant.com/wp-content/uploads/2021/08/Palak-paneer-7-edited-480x270.jpg' },
+      { id: 11, name: 'Veg Manchurian', category: 'appetizers', price: 160, image: 'https://i.pinimg.com/736x/b5/77/97/b57797fb70d3289daa6adc5908008b6d.jpg' },
+      { id: 12, name: 'Mutton Rogan Josh', category: 'mains', price: 350, image: 'https://lh4.googleusercontent.com/proxy/wuPpW9ygCei7JoFmULDb6WfmIj4E9gtBPZvENlSWyjoFsJmzxB7hGx99dHFGL0NHTeXmYMBZ98rolhwis8SKvLT082Ey5gAttkg' },
+      { id: 13, name: 'Jalebi', category: 'desserts', price: 130, image: 'https://m.media-amazon.com/images/I/515Ueeh4ylL._AC_UF1000,1000_QL80_.jpg' },
+      { id: 14, name: 'Pav Bhaji', category: 'indian', price: 140, image: 'https://c.ndtvimg.com/2023-03/kk2oqqhg_pav-bhaji_625x300_05_March_23.jpg?im=FaceCrop,algorithm=dnn,width=1200,height=886' },
+      { id: 15, name: 'Paneer Butter Masala', category: 'indian', price: 240, image: 'https://www.yummytummyaarthi.com/wp-content/uploads/2021/12/1-1024x682.jpg' },
+    ];
+
+    var myChoice = []; // Array to store selected items
+
+    // Function to display menu items based on category
+    function showMenu(category) {
+      var menuItemsDiv = document.getElementById('menuItems');
+      menuItemsDiv.innerHTML = '';
+
+      // Filter menuItems based on category
+      var filteredItems = menuItems.filter(item => item.category === category);
+
+      // Generate HTML for each item and append to menuItemsDiv
+      filteredItems.forEach(item => {
+        var card = document.createElement('div');
+        card.classList.add('col-md-4', 'mb-3', 'menu-item');
+        card.innerHTML = `
+          <div class="card">
+            <img src="${item.image}" class="card-img-top" alt="${item.name}">
+            <div class="card-body">
+              <h5 class="card-title">${item.name}</h5>
+              <p class="card-text">₹${item.price.toFixed(2)}</p>
+              <div class="form-group">
+                <label for="quantity_${item.id}">Quantity:</label>
+                <input type="number" class="form-control" id="quantity_${item.id}" value="1" min="1">
+              </div>
+              <button class="btn btn-primary" onclick="addToMyChoice(${item.id}, '${item.name}', ${item.price})">Add to My Choice</button>
+            </div>
+          </div>
+        `;
+        menuItemsDiv.appendChild(card);
+      });
+    }
+
+    // Function to add an item to myChoice array
+    function addToMyChoice(itemId, name, price) {
+      // Check if item already exists in myChoice
+      var existingItem = myChoice.find(item => item.id === itemId);
+      if (existingItem) {
+        alert('Item already added!');
+        return;
+      }
+
+      // Get quantity from input field
+      var quantityInput = document.getElementById(`quantity_${itemId}`);
+      var quantity = parseInt(quantityInput.value, 10);
+
+      // Add item to myChoice array
+      myChoice.push({ id: itemId, name, price, quantity });
+      updateMyChoice(); // Update displayed selected items
+    }
+
+    // Function to update the displayed selected items and total price
+    function updateMyChoice() {
+      var myChoiceList = document.getElementById('myChoiceList');
+      myChoiceList.innerHTML = '';
+
+      var totalPrice = 0;
+
+      // Generate HTML for each item in myChoice and calculate total price
+      myChoice.forEach(item => {
+        var listItem = document.createElement('li');
+        listItem.textContent = `${item.name} x ${item.quantity} - ₹${(item.price * item.quantity).toFixed(2)}`;
+
+        var devareBtn = document.createElement('button');
+        devareBtn.classList.add('btn', 'btn-danger', 'devare-btn');
+        devareBtn.textContent = 'Delete';
+        devareBtn.onclick = () => devareItem(item.id); // Assign devareItem function to button click
+
+        listItem.appendChild(devareBtn); // Append devare button to list item
+
+        myChoiceList.appendChild(listItem); // Append list item to myChoiceList
+        totalPrice += item.price * item.quantity; // Calculate total price
+      });
+
+      // Update total price display
+      document.getElementById('totalPrice').textContent = `₹${totalPrice.toFixed(2)}`;
+    }
+
+    // Function to devare an item from myChoice array
+    function devareItem(itemId) {
+      myChoice = myChoice.filter(item => item.id !== itemId); // Filter out item to devare
+      updateMyChoice(); // Update displayed selected items
+    }
+
+    // Function to compvare the order and display billing information
+    function compvareOrder() {
+      if (myChoice.length === 0) {
+        alert('No items selected yet!');
+        return;
+      }
+
+      var orderSummary = document.getElementById('orderSummary');
+      orderSummary.innerHTML = '';
+
+      var totalToPay = 0;
+
+      // Generate HTML for each item in myChoice for order summary and calculate total to pay
+      myChoice.forEach(item => {
+        var itemTotal = item.price * item.quantity;
+        totalToPay += itemTotal;
+
+        var row = document.createElement('tr');
+        row.innerHTML = `
+          <td>${item.name}</td>
+          <td>${item.quantity}</td>
+          <td>₹${item.price.toFixed(2)}</td>
+          <td>₹${itemTotal.toFixed(2)}</td>
+        `;
+        orderSummary.appendChild(row);
+      });
+
+      // Update total to pay display and toggle visibility of sections
+      document.getElementById('totalToPay').textContent = `₹${totalToPay.toFixed(2)}`;
+      document.getElementById('myChoice').style.display = 'none'; // Hide My Choice section
+      document.getElementById('menuItems').style.display = 'none'; // Hide Menu Items section
+      document.getElementById('orderDetails').style.display = 'block'; // Show Billing Information section
+    }
+
+    // Function to start a new order by reloading the page
+    function startNewOrder() {
+      location.reload(); // Reload page
+    }
+
+    // Initial function call to display appetizers menu
+    showMenu('appetizers');
+  </script>
+</body>
+
+</html>
